@@ -268,9 +268,9 @@ class DiagrammedAssertionsSpec extends FunSpec with Matchers with DiagrammedAsse
             """
               |
               |assert(0 == a)
-              |       |    |  |
+              |       | |  |
               |       0 |  3
-              |            false
+              |         false
               |""".stripMargin
           )
         )
@@ -503,90 +503,123 @@ class DiagrammedAssertionsSpec extends FunSpec with Matchers with DiagrammedAsse
         assert(alice != "bob")
       }
 
-      // SKIP-DOTTY-START
-      // Dotty does well too or even better, just position difference
-
       it("should throw TestFailedException with correct message and stack depth when is used to check bob == \"alice\"") {
         val e = intercept[TestFailedException] {
           assert(bob == "alice")
         }
+        e.failedCodeFileName should be (Some(fileName))
+        e.failedCodeLineNumber should be (Some(thisLineNumber - 3))
         e.message should be (
           Some(
-            """
-              |
-              |assert(bob == "alice")
-              |       |   |  |
-              |       |   |  "alice"
-              |       |   false
-              |       "bob"
-              |""".stripMargin
+            if (ScalaTestVersions.BuiltForScalaVersion.startsWith("2."))
+              """
+                |
+                |assert(bob == "alice")
+                |       |   |  |
+                |       |   |  "alice"
+                |       |   false
+                |       "bob"
+                |""".stripMargin
+            else  // for Dotty
+              """
+                |
+                |assert(bob == "alice")
+                |        |  |     |
+                |        |  false "alice"
+                |        "bob"
+                |""".stripMargin
           )
         )
-        e.failedCodeFileName should be (Some(fileName))
-        e.failedCodeLineNumber should be (Some(thisLineNumber - 15))
       }
 
       it("should throw TestFailedException with correct message and stack depth when is used to check bob != \"bob\"") {
         val e = intercept[TestFailedException] {
           assert(bob != "bob")
         }
+        e.failedCodeFileName should be (Some(fileName))
+        e.failedCodeLineNumber should be (Some(thisLineNumber - 3))
         e.message should be (
           Some(
-            """
-              |
-              |assert(bob != "bob")
-              |       |   |  |
-              |       |   |  "bob"
-              |       |   false
-              |       "bob"
-              |""".stripMargin
+            if (ScalaTestVersions.BuiltForScalaVersion.startsWith("2."))
+              """
+                |
+                |assert(bob != "bob")
+                |       |   |  |
+                |       |   |  "bob"
+                |       |   false
+                |       "bob"
+                |""".stripMargin
+            else  // Dotty
+              """
+                |
+                |assert(bob != "bob")
+                |        |  |    |
+                |        |  |    "bob"
+                |        |  false
+                |        "bob"
+                |""".stripMargin
           )
         )
-        e.failedCodeFileName should be (Some(fileName))
-        e.failedCodeLineNumber should be (Some(thisLineNumber - 15))
       }
 
       it("should throw TestFailedException with correct message and stack depth when is used to check alice == \"bob\"") {
         val e = intercept[TestFailedException] {
           assert(alice == "bob")
         }
+        e.failedCodeFileName should be (Some(fileName))
+        e.failedCodeLineNumber should be (Some(thisLineNumber - 3))
         e.message should be (
           Some(
-            """
-              |
-              |assert(alice == "bob")
-              |       |     |  |
-              |       |     |  "bob"
-              |       |     false
-              |       "alice"
-              |""".stripMargin
+            if (ScalaTestVersions.BuiltForScalaVersion.startsWith("2."))
+              """
+                |
+                |assert(alice == "bob")
+                |       |     |  |
+                |       |     |  "bob"
+                |       |     false
+                |       "alice"
+                |""".stripMargin
+            else // Dotty
+              """
+                |
+                |assert(alice == "bob")
+                |         |   |    |
+                |         |   |    "bob"
+                |         |   false
+                |         "alice"
+                |""".stripMargin
           )
         )
-        e.failedCodeFileName should be (Some(fileName))
-        e.failedCodeLineNumber should be (Some(thisLineNumber - 15))
       }
 
       it("should throw TestFailedException with correct message and stack depth when is used to check alice != \"alice\"") {
         val e = intercept[TestFailedException] {
           assert(alice != "alice")
         }
+        e.failedCodeFileName should be (Some(fileName))
+        e.failedCodeLineNumber should be (Some(thisLineNumber - 3))
         e.message should be (
           Some(
-            """
-              |
-              |assert(alice != "alice")
-              |       |     |  |
-              |       |     |  "alice"
-              |       |     false
-              |       "alice"
-              |""".stripMargin
+            if (ScalaTestVersions.BuiltForScalaVersion.startsWith("2."))
+              """
+                |
+                |assert(alice != "alice")
+                |       |     |  |
+                |       |     |  "alice"
+                |       |     false
+                |       "alice"
+                |""".stripMargin
+            else
+              """
+                |
+                |assert(alice != "alice")
+                |         |   |     |
+                |         |   false "alice"
+                |         "alice"
+                |""".stripMargin
           )
         )
-        e.failedCodeFileName should be (Some(fileName))
-        e.failedCodeLineNumber should be (Some(thisLineNumber - 15))
       }
-
-      // SKIP-DOTTY-END
 
       it("should do nothing when is used to check a === 3") {
         assert(a === 3)
@@ -2752,9 +2785,9 @@ class DiagrammedAssertionsSpec extends FunSpec with Matchers with DiagrammedAsse
             """this is a clue
               |
               |assert(0 == a, "this is a clue")
-              |       |    |  |
+              |       | |  |
               |       0 |  3
-              |            false
+              |         false
               |""".stripMargin
           )
         )
@@ -5200,9 +5233,9 @@ class DiagrammedAssertionsSpec extends FunSpec with Matchers with DiagrammedAsse
             """
               |
               |assume(0 == a)
-              |       |    |  |
+              |       | |  |
               |       0 |  3
-              |            false
+              |         false
               |""".stripMargin
           )
         )
@@ -7648,9 +7681,9 @@ class DiagrammedAssertionsSpec extends FunSpec with Matchers with DiagrammedAsse
             """this is a clue
               |
               |assume(0 == a, "this is a clue")
-              |       |    |  |
+              |       | |  |
               |       0 |  3
-              |            false
+              |         false
               |""".stripMargin
           )
         )
